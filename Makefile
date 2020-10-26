@@ -110,7 +110,7 @@ $(Q_CREATE_PROJECT_TCL):
 	do\
 		echo "set_global_assignment -name SOURCE_FILE $${psrc}" >> $(Q_CREATE_PROJECT_TCL);\
 	done;\
-	for psrc in $(MEM_SRC);\
+	for msrc in $(MEM_SRC);\
 	do\
 		echo "set_global_assignment -name SOURCE_FILE $${msrc}" >> $(Q_CREATE_PROJECT_TCL);\
 	done;\
