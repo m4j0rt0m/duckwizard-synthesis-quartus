@@ -57,7 +57,12 @@ all: rtl-synth
 
 #H# veritedium              : Run veritedium AUTO features
 veritedium:
+	@echo "Running Veritedium Autocomplete..."
 	@$(foreach SRC,$(VERILOG_SRC),$(call veritedium-command,$(SRC)))
+	@echo "Deleting unnecessary backup files (*~ or *.bak)..."
+	find ./* -name "*~" -delete
+	find ./* -name "*.bak" -delete
+	@echo "Finished!"
 
 #H# rtl-synth               : Run RTL synthesis with Quartus
 rtl-synth: print-rtl-srcs $(RPT_OBJS)
