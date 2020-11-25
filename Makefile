@@ -1,5 +1,4 @@
 ###################################################################
-# Project:                                                        #
 # Description:      RTL Synthesis with Quartus - Makefile         #
 #                                                                 #
 # Template written by Abraham J. Ruiz R.                          #
@@ -7,6 +6,8 @@
 ###################################################################
 
 SHELL                := /bin/bash
+REMOTE-URL-SSH       := git@github.com:m4j0rt0m/rtl-develop-template-synthesis-quartus.git
+REMOTE-URL-HTTPS     := https://github.com/m4j0rt0m/rtl-develop-template-synthesis-quartus.git
 
 MKFILE_PATH           = $(abspath $(firstword $(MAKEFILE_LIST)))
 TOP_DIR               = $(shell dirname $(MKFILE_PATH))
@@ -51,13 +52,24 @@ Q_ASM_RPT             = $(BUILD_DIR)/$(PROJECT).asm.rpt
 Q_STA_RPT             = $(BUILD_DIR)/$(PROJECT).sta.rpt
 RTL_OBJS              = $(VERILOG_SRC) $(PACKAGE_SRC) $(VERILOG_HEADERS) $(MEM_SRC)
 RPT_OBJS              = $(Q_MAP_RPT) $(Q_FIT_RPT) $(Q_ASM_RPT) $(Q_STA_RPT)
+RTL_SYN_CLK_SRC
+ifeq ($(RTL_SYN_USES_CLK),yes)
+Q_VIRTUAL_PINS_TCL    = $(SCRIPTS_DIR)/virtual_pins_all_pins_xcpt_clk.tcl
+else
+Q_VIRTUAL_PINS_TCL    = $(SCRIPTS_DIR)/virtual_pins_all_pins.tcl
+endif
 
 #H# all                     : Run the synthesis
 all: rtl-synth
 
 #H# veritedium              : Run veritedium AUTO features
 veritedium:
+	@echo "Running Veritedium Autocomplete..."
 	@$(foreach SRC,$(VERILOG_SRC),$(call veritedium-command,$(SRC)))
+	@echo "Deleting unnecessary backup files (*~ or *.bak)..."
+	find ./* -name "*~" -delete
+	find ./* -name "*.bak" -delete
+	@echo "Finished!"
 
 #H# rtl-synth               : Run RTL synthesis with Quartus
 rtl-synth: print-rtl-srcs $(RPT_OBJS)
@@ -69,7 +81,11 @@ quartus-create-project: veritedium $(Q_PROJECT_FILES)
 	cd $(BUILD_DIR);\
 	$(QUARTUS_SH) -t $(Q_CREATE_PROJECT_TCL)
 
+ifeq ($(RTL_SYN_USES_CLK),yes)
 $(Q_PROJECT_FILES): $(Q_PROJECT_SDC) $(Q_CREATE_PROJECT_TCL)
+else
+$(Q_PROJECT_FILES): $(Q_CREATE_PROJECT_TCL)
+endif
 
 $(RPT_OBJS): $(RTL_OBJS)
 	$(MAKE) quartus-create-project
@@ -114,9 +130,13 @@ $(Q_CREATE_PROJECT_TCL):
 	do\
 		echo "set_global_assignment -name SOURCE_FILE $${msrc}" >> $(Q_CREATE_PROJECT_TCL);\
 	done;\
-	echo "set_global_assignment -name SDC_FILE $(Q_PROJECT_SDC)" >> $(Q_CREATE_PROJECT_TCL);\
+	if [[ "$(RTL_SYN_USES_CLK)" == "yes" ]]; then\
+		echo "set_global_assignment -name SDC_FILE $(Q_PROJECT_SDC)" >> $(Q_CREATE_PROJECT_TCL);\
+	fi;\
 	cat "$(Q_VIRTUAL_PINS_TCL)" >> $(Q_CREATE_PROJECT_TCL);\
-	echo "make_all_pins_virtual $(RTL_SYN_CLK_SRC)" >> $(Q_CREATE_PROJECT_TCL);\
+	if [[ "$(RTL_SYN_USES_CLK)" == "yes" ]]; then\
+		echo "make_all_pins_virtual $(RTL_SYN_CLK_SRC)" >> $(Q_CREATE_PROJECT_TCL);\
+	fi;\
 	echo "project_close" >> $(Q_CREATE_PROJECT_TCL);\
 	echo "qexit -success" >> $(Q_CREATE_PROJECT_TCL)
 
