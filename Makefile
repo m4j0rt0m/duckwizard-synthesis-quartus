@@ -45,14 +45,12 @@ QUARTUS_SH            = quartus_sh
 Q_PROJECT_FILES       = $(BUILD_DIR)/$(PROJECT).qpf $(BUILD_DIR)/$(PROJECT).qsf
 Q_CREATE_PROJECT_TCL  = $(BUILD_DIR)/quartus_create_project_$(PROJECT).tcl
 Q_PROJECT_SDC         = $(BUILD_DIR)/quartus_project_$(PROJECT).sdc
-Q_VIRTUAL_PINS_TCL    = $(SCRIPTS_DIR)/virtual_pins_all_pins.tcl
 Q_MAP_RPT             = $(BUILD_DIR)/$(PROJECT).map.rpt
 Q_FIT_RPT             = $(BUILD_DIR)/$(PROJECT).fit.rpt
 Q_ASM_RPT             = $(BUILD_DIR)/$(PROJECT).asm.rpt
 Q_STA_RPT             = $(BUILD_DIR)/$(PROJECT).sta.rpt
 RTL_OBJS              = $(VERILOG_SRC) $(PACKAGE_SRC) $(VERILOG_HEADERS) $(MEM_SRC)
 RPT_OBJS              = $(Q_MAP_RPT) $(Q_FIT_RPT) $(Q_ASM_RPT) $(Q_STA_RPT)
-RTL_SYN_CLK_SRC
 ifeq ($(RTL_SYN_USES_CLK),yes)
 Q_VIRTUAL_PINS_TCL    = $(SCRIPTS_DIR)/virtual_pins_all_pins_xcpt_clk.tcl
 else
