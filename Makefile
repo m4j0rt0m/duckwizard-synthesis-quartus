@@ -104,6 +104,7 @@ $(Q_CREATE_PROJECT_TCL):
 	echo "# Automatically created by the Makefile #" > $(Q_CREATE_PROJECT_TCL);\
 	echo "set project_name $(PROJECT)" >> $(Q_CREATE_PROJECT_TCL);\
 	echo "if [catch {project_open $(PROJECT)}] {project_new $(PROJECT)}" >> $(Q_CREATE_PROJECT_TCL);\
+	echo "set_global_assignment -name VERILOG_MACRO \"__QUARTUS_SYN__\"" >> $(Q_CREATE_PROJECT_TCL);\
 	echo "set_global_assignment -name FAMILY \"$(RTL_SYN_Q_TARGET)\"" >> $(Q_CREATE_PROJECT_TCL);\
 	echo "set_global_assignment -name DEVICE \"$(RTL_SYN_Q_DEVICE)\"" >> $(Q_CREATE_PROJECT_TCL);\
 	echo "set_global_assignment -name TOP_LEVEL_ENTITY $(TOP_MODULE)" >> $(Q_CREATE_PROJECT_TCL);\
