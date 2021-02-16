@@ -9,8 +9,8 @@ SHELL                := /bin/bash
 REMOTE-URL-SSH       := git@github.com:m4j0rt0m/rtl-develop-template-synthesis-quartus.git
 REMOTE-URL-HTTPS     := https://github.com/m4j0rt0m/rtl-develop-template-synthesis-quartus.git
 
-MKFILE_PATH           = $(abspath $(firstword $(MAKEFILE_LIST)))
-TOP_DIR               = $(shell dirname $(MKFILE_PATH))
+MKFILE_PATH          := $(abspath $(firstword $(MAKEFILE_LIST)))
+TOP_DIR              := $(shell dirname $(MKFILE_PATH))
 
 ### directories ###
 OUTPUT_DIR            = $(TOP_DIR)/build
@@ -36,7 +36,7 @@ BUILD_DIR             = $(OUTPUT_DIR)/$(TOP_MODULE)
 ### synthesis device configuration ###
 RTL_SYN_Q_TARGET     := $(or $(RTL_SYN_Q_TARGET),$(DEFAULT_RTL_SYN_Q_TARGET))
 RTL_SYN_Q_DEVICE     := $(or $(RTL_SYN_Q_DEVICE),$(DEFAULT_RTL_SYN_Q_DEVICE))
-RTL_SYN_Q_CLK_PERIOD := $(or $(RTL_SYN_Q_CLK_PERIOD),$(DEFAULT_RTL_SYN_Q_CLK_PERIOD))
+RTL_SYN_Q_CLK_MHZ    := $(or $(RTL_SYN_Q_CLK_MHZ),$(DEFAULT_RTL_SYN_Q_CLK_MHZ))
 
 ### quartus synthesis cli ###
 QUARTUS_SH            = quartus_sh
@@ -73,7 +73,7 @@ veritedium:
 rtl-synth: print-rtl-srcs $(RPT_OBJS)
 
 #H# quartus-create-project  : Create the Quartus project
-quartus-create-project: veritedium $(Q_PROJECT_FILES)
+quartus-create-project: $(Q_PROJECT_FILES)
 	@rm -rf $(Q_PROJECT_FILES);\
 	mkdir -p $(BUILD_DIR);\
 	cd $(BUILD_DIR);\
@@ -86,16 +86,18 @@ $(Q_PROJECT_FILES): $(Q_CREATE_PROJECT_TCL)
 endif
 
 $(RPT_OBJS): $(RTL_OBJS)
-	$(MAKE) quartus-create-project
+	@$(MAKE) quartus-create-project
 	@cd $(BUILD_DIR);\
 	$(QUARTUS_SH) --flow compile $(PROJECT)
 
 $(Q_PROJECT_SDC):
 	@mkdir -p $(BUILD_DIR);\
 	echo "# Automatically created by the Makefile #" > $(Q_PROJECT_SDC);\
-	for csrc in $(RTL_SYN_CLK_SRC);\
+	rtl_syn_clock_src=($(RTL_SYN_CLK_SRC));\
+	rtl_syn_clock_mhz=($(RTL_SYN_Q_CLK_MHZ));\
+	for csrc in `seq 0 $$(($${#rtl_syn_clock_src[@]}-1))`;\
 	do\
-		echo "create_clock -name $${csrc} -period $(RTL_SYN_Q_CLK_PERIOD) [get_ports {$${csrc}}]" >> $(Q_PROJECT_SDC);\
+		echo "create_clock -name $${rtl_syn_clock_src[$$csrc]} -period $${rtl_syn_clock_mhz[$$csrc]}MHz [get_ports {$${rtl_syn_clock_src[$$csrc]}}]" >> $(Q_PROJECT_SDC);\
 	done;\
 	echo "derive_clock_uncertainty" >> $(Q_PROJECT_SDC)
 
