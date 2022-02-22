@@ -1,19 +1,17 @@
-###################################################################
-# Description:      RTL Synthesis with Quartus - Makefile         #
-#                                                                 #
-# Template written by Abraham J. Ruiz R.                          #
-#   https://github.com/m4j0rt0m/rtl-develop-template-syn-quartus  #
-###################################################################
+# Author:      Abraham J. Ruiz R.
+# Description: RTL Synthesis with Quartus - Makefile
+# Version:     1.3
+# Url:         https://github.com/m4j0rt0m/duckwizard-synthesis-quartus
 
 SHELL                := /bin/bash
-REMOTE-URL-SSH       := git@github.com:m4j0rt0m/rtl-develop-template-synthesis-quartus.git
-REMOTE-URL-HTTPS     := https://github.com/m4j0rt0m/rtl-develop-template-synthesis-quartus.git
+REMOTE-URL-SSH       := git@github.com:m4j0rt0m/duckwizard-synthesis-quartus.git
+REMOTE-URL-HTTPS     := https://github.com/m4j0rt0m/duckwizard-synthesis-quartus.git
 
 MKFILE_PATH          := $(abspath $(firstword $(MAKEFILE_LIST)))
 TOP_DIR              := $(shell dirname $(MKFILE_PATH))
 
 ### directories ###
-OUTPUT_DIR            = $(TOP_DIR)/build
+OUTPUT_DIR           := $(if $(SYN_BUILD_DIR),$(SYN_BUILD_DIR),$(TOP_DIR)/build)
 SCRIPTS_DIR           = $(TOP_DIR)/scripts
 
 ### makefile includes ###
@@ -147,7 +145,7 @@ print-rtl-srcs:
 
 #H# clean                   : Clean build directory
 clean:
-	rm -rf build/*
+	rm -rf $(OUTPUT_DIR)/*
 
 #H# help                    : Display help
 help: Makefile
