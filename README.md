@@ -1,1 +1,1 @@
-# RTL Synthesis with Quartus (Template)
+# duckWizard: Synthesis with Quartus
